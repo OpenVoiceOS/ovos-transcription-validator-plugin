@@ -1,3 +1,4 @@
 ovos-utils>=0.6.0
 ovos-plugin-manager
+ovos-spec-tools>=1.14.0a8
 requests

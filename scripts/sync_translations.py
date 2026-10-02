@@ -11,7 +11,26 @@ from ovos_utils.list_utils import flatten_list, deduplicate_list
 locale = f"{dirname(dirname(__file__))}/ovos_transcription_validator/locale"
 tx = f"{dirname(dirname(__file__))}/translations"
 
+
+def resolve_lang_dir(lang):
+    """Map a lowercase translations key to its locale directory.
+
+    `translations/<lang>` keys are always lowercase. Writing to
+    `locale/<lang.lower()>` unconditionally creates a case-variant sibling of
+    an existing, canonically-cased directory (`ca-ES` vs `ca-es`) on every
+    sync. Match the existing directory case-insensitively first, and fall
+    back to a canonical BCP-47 form only for a language the locale tree does
+    not carry yet.
+    """
+    existing = {d.lower(): d for d in os.listdir(locale)} if os.path.isdir(locale) else {}
+    if lang in existing:
+        return existing[lang]
+    base, _, region = lang.partition("-")
+    return f"{base}-{region.upper()}" if region else base
+
+
 for lang in os.listdir(tx):
+    lang_dir = resolve_lang_dir(lang)
     intents = f"{tx}/{lang}/intents.json"
     dialogs = f"{tx}/{lang}/dialogs.json"
     vocs = f"{tx}/{lang}/vocabs.json"
@@ -26,11 +45,11 @@ for lang in os.listdir(tx):
                                                          for s in samples
                                                          if s and s.strip() != "[UNUSED]"]))  # s may be None
                 if fid.startswith("/"):
-                    p = f"{locale}/{lang.lower()}{fid}"
+                    p = f"{locale}/{lang_dir}{fid}"
                 else:
-                    p = f"{locale}/{lang.lower()}/{fid}"
+                    p = f"{locale}/{lang_dir}/{fid}"
                 os.makedirs(os.path.dirname(p), exist_ok=True)
-                with open(f"{locale}/{lang.lower()}/{fid}", "w") as f:
+                with open(f"{locale}/{lang_dir}/{fid}", "w") as f:
                     f.write("\n".join(sorted(samples)))
 
     if os.path.isfile(dialogs):
@@ -42,11 +61,11 @@ for lang in os.listdir(tx):
                                                          for s in samples
                                                          if s and s.strip() != "[UNUSED]"]))  # s may be None
                 if fid.startswith("/"):
-                    p = f"{locale}/{lang.lower()}{fid}"
+                    p = f"{locale}/{lang_dir}{fid}"
                 else:
-                    p = f"{locale}/{lang.lower()}/{fid}"
+                    p = f"{locale}/{lang_dir}/{fid}"
                 os.makedirs(os.path.dirname(p), exist_ok=True)
-                with open(f"{locale}/{lang.lower()}/{fid}", "w") as f:
+                with open(f"{locale}/{lang_dir}/{fid}", "w") as f:
                     f.write("\n".join(sorted(samples)))
 
     if os.path.isfile(vocs):
@@ -58,10 +77,10 @@ for lang in os.listdir(tx):
                                                          for s in samples
                                                          if s and s.strip() != "[UNUSED]"]))  # s may be None
                 if fid.startswith("/"):
-                    p = f"{locale}/{lang.lower()}{fid}"
+                    p = f"{locale}/{lang_dir}{fid}"
                 else:
-                    p = f"{locale}/{lang.lower()}/{fid}"
+                    p = f"{locale}/{lang_dir}/{fid}"
                 os.makedirs(os.path.dirname(p), exist_ok=True)
-                with open(f"{locale}/{lang.lower()}/{fid}", "w") as f:
+                with open(f"{locale}/{lang_dir}/{fid}", "w") as f:
                     f.write("\n".join(sorted(samples)))
 
