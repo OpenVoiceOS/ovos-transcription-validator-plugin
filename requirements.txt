@@ -1,3 +1,4 @@
 ovos-utils>=0.6.0
 ovos-plugin-manager
 requests
+ovos-spec-tools[langcodes]>=1.17.0a1

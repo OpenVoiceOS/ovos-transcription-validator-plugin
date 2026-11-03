@@ -76,6 +76,7 @@ setup(
     license='apache-2.0',
     packages=[PKG],
     package_data={PKG: find_resource_files()},
+    python_requires=">=3.11",
     install_requires=required("requirements.txt"),
     include_package_data=True,
     zip_safe=True,

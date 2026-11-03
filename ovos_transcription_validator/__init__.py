@@ -5,19 +5,18 @@ from collections import defaultdict
 from typing import List, Optional, Tuple, Union, Dict
 
 import requests
-from langcodes import tag_distance
 from ovos_bus_client.message import Message
 from ovos_bus_client.session import Session, SessionManager
 from ovos_config import Configuration
 from ovos_plugin_manager.templates.transformers import UtteranceTransformer
+from ovos_spec_tools.language import closest_lang, standardize_lang
 from ovos_utils.bracket_expansion import expand_template
-from ovos_utils.lang import standardize_lang_tag
 from ovos_utils.list_utils import deduplicate_list, flatten_list
 from ovos_utils.log import LOG
 
-# The largest language distance that still counts as a usable match. langcodes
-# gives exactly 10 to a specific language measured against its more-commonly-used
-# macrolanguage tag, such as "arz" against "ar", so the bound is inclusive.
+# The largest language distance that still counts as a usable match. A
+# specific language measured against its more-commonly-used macrolanguage tag,
+# such as "arz" against "ar", is exactly 10, so the bound is inclusive.
 MAX_LANG_DISTANCE = 10
 
 # Default prompt for LLM validation
@@ -108,7 +107,7 @@ class TranscriptionValidatorPlugin(UtteranceTransformer):
             return
 
         for l in os.listdir(path):
-            std = standardize_lang_tag(l)
+            std = standardize_lang(l)
             locale_dir = os.path.join(path, l)
 
             if not os.path.isdir(locale_dir):
@@ -131,8 +130,10 @@ class TranscriptionValidatorPlugin(UtteranceTransformer):
     def get_dialog(self, name: str, lang: str) -> Optional[str]:
         """
         Retrieves a random dialog string for a given name and language.
-        It attempts to find the closest matching language if an exact match
-        is not available, using `langcodes.tag_distance`.
+        It picks the closest matching language with
+        `ovos_spec_tools.language.closest_lang`. A language tag with no
+        region is measured from its default region, so "pt" picks pt-PT
+        dialogs over pt-BR ones.
 
         Args:
             name (str): The name of the dialog (e.g., "say_again").
@@ -142,20 +143,9 @@ class TranscriptionValidatorPlugin(UtteranceTransformer):
             Optional[str]: A random dialog string from the closest matching
                            language, or None if no suitable dialog is found.
         """
-        standardized_lang = standardize_lang_tag(lang)
-        best_match_lang: Optional[str] = None
-        min_distance: float = float('inf')
-
-        for available_lang in self.dialogs[name]:
-            distance = tag_distance(standardized_lang, available_lang)
-            if distance < min_distance:
-                min_distance = distance
-                best_match_lang = available_lang
-
-        # A distance of MAX_LANG_DISTANCE or less is a usable match; the
-        # bound is inclusive, because langcodes gives exactly 10 to a language
-        # measured against its macrolanguage tag.
-        if best_match_lang and min_distance <= MAX_LANG_DISTANCE:
+        best_match_lang = closest_lang(standardize_lang(lang), self.dialogs[name],
+                                       max_distance=MAX_LANG_DISTANCE)
+        if best_match_lang:
             dialogs = self.dialogs[name].get(best_match_lang)
             if dialogs:
                 return random.choice(dialogs)
@@ -337,7 +327,7 @@ class TranscriptionValidatorPlugin(UtteranceTransformer):
             sess = SessionManager.get()
             lang = sess.lang
 
-        standardized_lang: str = standardize_lang_tag(lang)
+        standardized_lang: str = standardize_lang(lang)
 
         # If no utterances are provided or the first one is empty, do nothing
         if not utterances or not utterances[0].strip():
