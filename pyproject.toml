@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovos-transcription-validator-plugin"
+dynamic = ["version"]
+description = "OpenVoiceOS Transcription Validator Plugin"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "TigreGotico", email = "jarbasai@mailfence.com"}]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Text Processing :: Linguistic",
+    "License :: OSI Approved :: Apache Software License",
+]
+dependencies = [
+    "ovos-utils>=0.6.0",
+    "ovos-plugin-manager",
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/OpenVoiceOS/ovos-transcription-validator-plugin"
+Repository = "https://github.com/OpenVoiceOS/ovos-transcription-validator-plugin"
+
+[project.entry-points."neon.plugin.text"]
+ovos-transcription-validator-plugin = "ovos_transcription_validator:TranscriptionValidatorPlugin"
+
+[tool.setuptools.packages.find]
+include = ["ovos_transcription_validator*"]
+
+[tool.setuptools.package-data]
+ovos_transcription_validator = ["locale/**/*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ovos_transcription_validator.version.__version__"}
