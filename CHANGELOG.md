@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.4a1](https://github.com/OpenVoiceOS/ovos-transcription-validator-plugin/tree/0.1.4a1) (2026-11-03)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-transcription-validator-plugin/compare/0.1.3a2...0.1.4a1)
+
+**Merged pull requests:**
+
+- fix\(locale\): swap the Spanish and Basque say\_again dialogs back [\#24](https://github.com/OpenVoiceOS/ovos-transcription-validator-plugin/pull/24) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.1.3a2](https://github.com/OpenVoiceOS/ovos-transcription-validator-plugin/tree/0.1.3a2) (2026-09-26)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-transcription-validator-plugin/compare/0.1.3a1...0.1.3a2)
