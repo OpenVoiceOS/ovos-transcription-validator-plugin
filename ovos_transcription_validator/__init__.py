@@ -16,7 +16,7 @@ from ovos_utils.log import LOG
 
 # The largest language distance that still counts as a usable match. A
 # specific language measured against its more-commonly-used macrolanguage tag,
-# such as "arz" against "ar", is exactly 10, so the bound is inclusive.
+# such as "wuu" against "zh", is exactly 10, so the bound is inclusive.
 MAX_LANG_DISTANCE = 10
 
 # Default prompt for LLM validation
